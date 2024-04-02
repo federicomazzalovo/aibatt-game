@@ -1,0 +1,90 @@
+[gd_scene load_steps=18 format=3 uid="uid://bw8ntrvi6sv7w"]
+
+[ext_resource type="PackedScene" uid="uid://c6d8x57di3m3h" path="res://aibatt.tscn" id="1_o7ymy"]
+[ext_resource type="Script" path="res://Scripts/world.cs" id="1_qs615"]
+[ext_resource type="Script" path="res://Scripts/aibatt.cs" id="2_b3fc0"]
+[ext_resource type="Script" path="res://Scripts/CameraController.cs" id="2_fe7nc"]
+[ext_resource type="Texture2D" uid="uid://dg8oeuowlpd83" path="res://Textures/grass.jpg" id="3_7fndf"]
+[ext_resource type="Texture2D" uid="uid://c7t13hvo7sp37" path="res://Textures/sky.png" id="5_m10tf"]
+[ext_resource type="Terrain3DStorage" uid="uid://c78bggb37coc1" path="res://Terrain/terrain.res" id="6_hyho2"]
+[ext_resource type="PackedScene" uid="uid://prohimcu85ti" path="res://Props/tree.tscn" id="7_j5bok"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_54vgp"]
+panorama = ExtResource("5_m10tf")
+
+[sub_resource type="Sky" id="Sky_mjn4f"]
+sky_material = SubResource("PanoramaSkyMaterial_54vgp")
+
+[sub_resource type="Environment" id="Environment_s4bng"]
+background_mode = 2
+sky = SubResource("Sky_mjn4f")
+ambient_light_source = 3
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_sky_contribution = 0.0
+
+[sub_resource type="Gradient" id="Gradient_56ijq"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_8fsh0"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hampc"]
+seamless = true
+color_ramp = SubResource("Gradient_56ijq")
+noise = SubResource("FastNoiseLite_8fsh0")
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_vpugl"]
+_shader_parameters = {
+"_mouse_layer": 2147483648,
+"blend_sharpness": null,
+"height_blending": null,
+"macro_variation1": null,
+"macro_variation2": null,
+"noise1_angle": null,
+"noise1_offset": null,
+"noise1_scale": null,
+"noise2_scale": null,
+"noise3_scale": null,
+"noise_texture": SubResource("NoiseTexture2D_hampc")
+}
+
+[sub_resource type="Terrain3DTexture" id="Terrain3DTexture_hc7fr"]
+albedo_texture = ExtResource("3_7fndf")
+normal_texture = ExtResource("3_7fndf")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureList" id="Terrain3DTextureList_2kf1x"]
+textures = Array[Terrain3DTexture]([SubResource("Terrain3DTexture_hc7fr")])
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_qs615")
+
+[node name="Aibatt" parent="." instance=ExtResource("1_o7ymy")]
+script = ExtResource("2_b3fc0")
+
+[node name="CameraController" type="Node3D" parent="."]
+script = ExtResource("2_fe7nc")
+
+[node name="Camera3D" type="Camera3D" parent="CameraController"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -0.0140843, 2.07361, 1.34303)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_s4bng")
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+storage = ExtResource("6_hyho2")
+material = SubResource("Terrain3DMaterial_vpugl")
+texture_list = SubResource("Terrain3DTextureList_2kf1x")
+
+[node name="Tree" parent="." instance=ExtResource("7_j5bok")]
+visible = false

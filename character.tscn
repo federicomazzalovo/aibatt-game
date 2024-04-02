@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3 uid="uid://b2t77xowcta8c"]
+
+[ext_resource type="PackedScene" uid="uid://j0c3hrhfaqmp" path="res://Models/char-standing.gltf" id="1_h6yo7"]
+[ext_resource type="PackedScene" uid="uid://mlt6wvkamukv" path="res://mvr_AiBatt.dae" id="2_2tnou"]
+[ext_resource type="Texture2D" uid="uid://c0owu7u4sisrg" path="res://Mvr_Aibatt-01.png" id="3_jk8ri"]
+[ext_resource type="ArrayMesh" uid="uid://igjqtbj31pfo" path="res://aibatt.obj" id="3_qi3ue"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cjikp"]
+albedo_texture = ExtResource("3_jk8ri")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3yfkm"]
+height = 2.08304
+
+[node name="Character" type="CharacterBody3D" groups=["Player"]]
+
+[node name="Armature" type="Node3D" parent="."]
+
+[node name="Skeleton3D" type="Skeleton3D" parent="Armature"]
+
+[node name="char-standing" parent="Armature/Skeleton3D" instance=ExtResource("1_h6yo7")]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Armature/Skeleton3D"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+visible = false
+material_override = SubResource("StandardMaterial3D_cjikp")
+mesh = ExtResource("3_qi3ue")
+skeleton = NodePath("")
+
+[node name="mvr_AiBatt" parent="Armature/Skeleton3D" instance=ExtResource("2_2tnou")]
+transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.737398, 0)
+shape = SubResource("CapsuleShape3D_3yfkm")
