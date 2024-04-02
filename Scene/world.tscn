@@ -1,6 +1,6 @@
 [gd_scene load_steps=18 format=3 uid="uid://bw8ntrvi6sv7w"]
 
-[ext_resource type="PackedScene" uid="uid://c6d8x57di3m3h" path="res://aibatt.tscn" id="1_o7ymy"]
+[ext_resource type="PackedScene" uid="uid://c6d8x57di3m3h" path="res://Scene/aibatt.tscn" id="1_o7ymy"]
 [ext_resource type="Script" path="res://Scripts/world.cs" id="1_qs615"]
 [ext_resource type="Script" path="res://Scripts/aibatt.cs" id="2_b3fc0"]
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="2_fe7nc"]
