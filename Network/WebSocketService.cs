@@ -4,15 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MyFlyff.Session;
 
 public partial class WebSocketService : GodotObject
 {
     private WebSocketPeer client;
     private static WebSocketService instance;
-
-    public event EventHandler<object> ConnectionClosedEvent = delegate { };
-    public event EventHandler<object> ConnectionEnstablishedEvent = delegate { };
-    public event EventHandler<object> DataReceivedEvent = delegate { };
 
     private WebSocketService()
     {
@@ -21,12 +18,7 @@ public partial class WebSocketService : GodotObject
 
     public Error Connect(string endpoint)
     {
-        this.client.Connect("connection_closed", new Callable(this, "OnConnectionClosed"));
-        this.client.Connect("connection_error", new Callable(this, "OnConnectionClosed"));
-        this.client.Connect("connection_established", new Callable(this, "OnConnectedEnstablished"));
-        this.client.Connect("data_received", new Callable(this, "OnDataReceived"));
-
-        return this.client.ConnectToUrl($"ws://localhost:8080/" + endpoint);
+        return this.client.ConnectToUrl($"{Configurations.WS_URL}/" + endpoint);
     }
 
     public static WebSocketService GetInstance()
@@ -42,28 +34,38 @@ public partial class WebSocketService : GodotObject
         this.client.Poll();
     }
 
+    public WebSocketPeer.State GetReadyState()
+    {
+        return this.client.GetReadyState();
+    }
+
+    public int GetAvailablePacketCount()
+    {
+        return this.client.GetAvailablePacketCount();
+    }
+
+    public string GetPacket()
+    {
+        var data = this.client.GetPacket();
+        var value = Encoding.UTF8.GetString(data, 0, data.Length);
+        GD.Print($"Received message: {value}");
+        return value;
+    }
+
+    public int GetCloseCode()
+    {
+        return this.client.GetCloseCode();
+    }
+
+    public string GetCloseReason()
+    {
+        return this.client.GetCloseReason();
+    }
+
     public void SendMessage(string message)
     {
-        this.client.PutPacket(Encoding.UTF8.GetBytes(message));
-    }
-
-    private void OnConnectionClosed(bool isClose)
-    {
-        GD.Print($"Client closed:  {isClose}");
-        ConnectionClosedEvent(this, "aaa");
-    }
-
-    private void OnConnectedEnstablished(string proto = "")
-    {
-        //GD.Print($"Client {id} connected with protocol: {proto}");
-        this.ConnectionEnstablishedEvent(this, "aaa");
-    }
-
-    private void OnDataReceived()
-    {
-        byte[] bytes = this.client.GetPacket();
-        string result = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-
-        this.DataReceivedEvent(this, result);
+        GD.Print($"Sending message: {message}");
+        GD.Print(message.ToUtf8Buffer());
+        this.client.PutPacket(message.ToUTF8());
     }
 }

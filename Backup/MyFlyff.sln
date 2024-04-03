@@ -1,15 +1,12 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34723.18
-MinimumVisualStudioVersion = 10.0.40219.1
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyFlyff", "MyFlyff.csproj", "{5CAF8B43-1DD3-47D2-93BD-6D1CB70A9B83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		ExportDebug|Any CPU = ExportDebug|Any CPU
-		ExportRelease|Any CPU = ExportRelease|Any CPU
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5CAF8B43-1DD3-47D2-93BD-6D1CB70A9B83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -18,11 +15,5 @@ Global
 		{5CAF8B43-1DD3-47D2-93BD-6D1CB70A9B83}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{5CAF8B43-1DD3-47D2-93BD-6D1CB70A9B83}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{5CAF8B43-1DD3-47D2-93BD-6D1CB70A9B83}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D669459F-83ED-4C08-9D62-6E592D5980DF}
 	EndGlobalSection
 EndGlobal

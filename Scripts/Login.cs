@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Text;
+using MyFlyff.Session;
 
 public partial class Login : Control
 {
@@ -36,11 +37,14 @@ public partial class Login : Control
 
 		using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
 		{
-			HttpResponseMessage response = client.PostAsync($"http://localhost:8080/api/user/login", content).Result;
+			HttpResponseMessage response = client.PostAsync($"{Configurations.API_URL}/api/user/login", content).Result;
 			GD.Print(response);
 
 			if (response.IsSuccessStatusCode)
+			{
+				ConnectedUser.Username = usernameValue;
 				this.GetTree().ChangeSceneToFile("res://Scene/World.tscn");
+			}
 		}
 	}
 

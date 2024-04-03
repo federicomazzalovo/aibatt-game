@@ -26,6 +26,7 @@ public class WebSocketParams
     public int characterId { get; set; }
     public float positionX { get; set; } 
     public float positionY { get; set; }
+    public float positionZ { get; set; }
     public int moveDirection { get; set; }
     public double hp { get; set; }
     public double initHp { get; set; }
