@@ -1,10 +1,12 @@
 using Godot;
 using System;
+using Newtonsoft.Json;
 
 public partial class Player : CharacterNode
 {
 	public const float Speed = 5.0f;
 	public const float JumpVelocity = 4.5f;
+	private bool updatePositionRequired = true;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
@@ -49,5 +51,27 @@ public partial class Player : CharacterNode
 
 		Velocity = velocity;
 		MoveAndSlide();
+
+		if (this.updatePositionRequired)
+			this.UpdatePosition(this.Position.X, this.Position.Y, this.Position.Z, this.Rotation.X, this.Rotation.Y, this.Rotation.Z);
+
+		this.updatePositionRequired = this.Velocity.X != 0 || this.Velocity.Y != 0 || this.Velocity.Z != 0 || this.Rotation.X != 0 || this.Rotation.Y != 0 || this.Rotation.Z != 0;
+	}
+
+	private void UpdatePosition(float positionx, float positiony, float positionz, float rotationx, float rotationy, float rotationz)
+	{
+		GD.Print($"Updating position {positionx} {positiony} {positionz}");
+		GD.Print($"Updating rotation {rotationx} {rotationy} {rotationz}");
+		string message = JsonConvert.SerializeObject(new WebSocketParams() { 
+			characterId = this.Character.Id, 
+			positionX = positionx, 
+			positionY = positiony, 
+			positionZ = positionz, 
+			rotationX = rotationx, 
+			rotationY = rotationy, 
+			rotationZ = rotationz, 
+			actionType = (int)ActionType.Movement, 
+			isConnected = true });
+		WebSocketService.GetInstance().SendMessage(message);
 	}
 }

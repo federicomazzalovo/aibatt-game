@@ -14,6 +14,7 @@ public partial class Character
 	public int Level { get; set; }
 	public double Resistance { get; set; }
 	public CharacterPosition Position { get; set; }
+	public CharacterRotation Rotation { get; set; }
 	public bool Dead { get { return this.Hp == 0; } }
 
 	public bool IsPlayer { get; set; }
@@ -23,6 +24,20 @@ public partial class Character
 public class CharacterPosition
 {
 	public CharacterPosition(float x, float y, float z = 0)
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public float x { get; set; }
+	public float y { get; set; }
+	public float z { get; set; }
+}
+
+public class CharacterRotation
+{
+	public CharacterRotation(float x, float y, float z = 0)
 	{
 		this.x = x;
 		this.y = y;
@@ -180,7 +195,14 @@ public partial class World : Node3D
 				}
 
 				foreach (WebSocketParams param in toAdd)
-					this.AddEnemy(new Character() { Id = param.characterId, Hp = param.hp, InitHp = param.initHp, Level = param.level, Position = new CharacterPosition(param.positionX, param.positionY, param.positionZ) });
+					this.AddEnemy(new Character() { 
+						Id = param.characterId, 
+						Hp = param.hp, 
+						InitHp = param.initHp, 
+						Level = param.level, 
+						Position = new CharacterPosition(param.positionX, param.positionY, param.positionZ),
+						Rotation = new CharacterRotation(param.rotationX, param.rotationY, param.rotationZ) 
+					});
 
 				foreach (CharacterNode node in toDelete)
 				{

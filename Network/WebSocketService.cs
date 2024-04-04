@@ -47,9 +47,7 @@ public partial class WebSocketService : GodotObject
     public string GetPacket()
     {
         var data = this.client.GetPacket();
-        var value = Encoding.UTF8.GetString(data, 0, data.Length);
-        GD.Print($"Received message: {value}");
-        return value;
+        return Encoding.UTF8.GetString(data, 0, data.Length);
     }
 
     public int GetCloseCode()
@@ -65,7 +63,6 @@ public partial class WebSocketService : GodotObject
     public void SendMessage(string message)
     {
         GD.Print($"Sending message: {message}");
-        GD.Print(message.ToUtf8Buffer());
-        this.client.PutPacket(message.ToUTF8());
+        this.client.Send(Encoding.UTF8.GetBytes(message), WebSocketPeer.WriteMode.Text);
     }
 }
