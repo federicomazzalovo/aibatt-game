@@ -6,7 +6,7 @@ public partial class Player : CharacterNode
 {
 	public const float Speed = 5.0f;
 	public const float JumpVelocity = 4.5f;
-	private bool updatePositionRequired = true;
+	private bool stopMessageSent = true;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
@@ -19,7 +19,7 @@ public partial class Player : CharacterNode
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Vector3 velocity = Velocity;
+		Vector3 velocity = this.Velocity;
 
 		// Add the gravity.
 		if (!IsOnFloor())
@@ -29,49 +29,99 @@ public partial class Player : CharacterNode
 		if (Input.IsActionJustPressed("ui_accept") && IsOnFloor())
 			velocity.Y = JumpVelocity;
 
+		this.CalculateMovingDirection();
+
 		// Get the input direction and handle the movement/deceleration.
 		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backwards");
-		Vector3 direction = (Transform.Basis * new Vector3(0, 0, inputDir.Y)).Normalized();
-
-		// Rotates left or right
-		Rotation = new Vector3(0, Rotation.Y - (inputDir.X * ((float)delta * 3)), 0);
-		camera.Rotation = new Vector3(camera.Rotation.X, Rotation.Y, camera.Rotation.Z);
-
-		// Move forward or backward
-		if (direction != Vector3.Zero)
+		if (inputDir != Vector2.Zero)
 		{
-			velocity.X = direction.X * Speed;
-			velocity.Z = direction.Z * Speed;
+			// Rotates left or right
+			this.Rotation = new Vector3(0, this.Rotation.Y - (inputDir.X * ((float)delta * 3)), 0);
+			camera.Rotation = new Vector3(camera.Rotation.X, Rotation.Y, camera.Rotation.Z);
+
+			Vector3 direction = (this.Transform.Basis * new Vector3(0, 0, inputDir.Y)).Normalized();
+
+			// Move forward or backward
+			if (direction != Vector3.Zero)
+			{
+				GD.Print($"Direction: {direction}");
+				velocity.X = direction.X * Speed;
+				velocity.Z = direction.Z * Speed;
+			}
+			else
+			{
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
+				velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
+			}
+
+			this.Velocity = velocity;
+			this.MoveAndSlide();
+
+			this.stopMessageSent = false;
+			this.UpdatePosition();
 		}
 		else
 		{
-			velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
-			velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
+			if (!this.stopMessageSent)
+			{
+				this.stopMessageSent = true;
+				this.UpdatePosition();
+			}
 		}
-
-		Velocity = velocity;
-		MoveAndSlide();
-
-		if (this.updatePositionRequired)
-			this.UpdatePosition(this.Position.X, this.Position.Y, this.Position.Z, this.Rotation.X, this.Rotation.Y, this.Rotation.Z);
-
-		this.updatePositionRequired = this.Velocity.X != 0 || this.Velocity.Y != 0 || this.Velocity.Z != 0 || this.Rotation.X != 0 || this.Rotation.Y != 0 || this.Rotation.Z != 0;
 	}
 
-	private void UpdatePosition(float positionx, float positiony, float positionz, float rotationx, float rotationy, float rotationz)
+	private void CalculateMovingDirection()
 	{
-		GD.Print($"Updating position {positionx} {positiony} {positionz}");
-		GD.Print($"Updating rotation {rotationx} {rotationy} {rotationz}");
-		string message = JsonConvert.SerializeObject(new WebSocketParams() { 
-			characterId = this.Character.Id, 
-			positionX = positionx, 
-			positionY = positiony, 
-			positionZ = positionz, 
-			rotationX = rotationx, 
-			rotationY = rotationy, 
-			rotationZ = rotationz, 
-			actionType = (int)ActionType.Movement, 
-			isConnected = true });
+		if (Input.IsActionPressed("move_forward"))
+			this.MoveDirection = MoveDirection.Up;
+		else if (Input.IsActionPressed("move_backwards"))
+			this.MoveDirection = MoveDirection.Down;
+		else if (Input.IsActionPressed("move_left"))
+			this.MoveDirection = MoveDirection.Left;
+		else if (Input.IsActionPressed("move_right"))
+			this.MoveDirection = MoveDirection.Right;
+		else
+			this.MoveDirection = MoveDirection.None;
+	}
+
+	private void UpdatePosition()
+	{
+		string message = JsonConvert.SerializeObject(new WebSocketParams()
+		{
+			characterId = this.Character.Id,
+			positionX = this.Position.X,
+			positionY = this.Position.Y,
+			positionZ = this.Position.Z,
+			rotationX = this.Rotation.X,
+			rotationY = this.Rotation.Y,
+			rotationZ = this.Rotation.Z,
+			actionType = (int)ActionType.Movement,
+			moveDirection = (int)this.MoveDirection,
+			isConnected = true
+		});
 		WebSocketService.GetInstance().SendMessage(message);
+	}
+
+	public override void UpdateCharacter(WebSocketParams param)
+	{
+		if (this.Character.Hp > 0 && param.hp == 0)
+			this.Kill();
+
+		if (param.hp > 0 && !this.IsPhysicsProcessing())
+			this.SetPhysicsProcess(true);
+
+		this.MoveDirection = (MoveDirection)param.moveDirection;
+		this.Character.Position = new CharacterPosition(param.positionX, param.positionY, param.positionZ);
+		this.Character.Rotation = new CharacterRotation(param.rotationX, param.rotationY, param.rotationZ);
+		this.Character.Hp = param.hp;
+
+		this.RenderLifeStatus();
+
+		// update only if not moving to avoid posilag
+		if (this.MoveDirection == MoveDirection.None)
+		{
+			this.Position = new Vector3(param.positionX, param.positionY, param.positionZ);
+			this.Rotation = new Vector3(param.rotationX, param.rotationY, param.rotationZ);
+		}
 	}
 }
