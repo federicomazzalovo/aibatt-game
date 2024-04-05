@@ -83,12 +83,13 @@ public partial class World : Node3D
 		GD.Print(DateTime.Now + " - Creating trees");
 		var treeNode = this.GetNode<Node3D>("Tree");
 
-		var random = new Random();
+		var random = new Random(100);
 		for (int i = 0; i < 100; i++)
 		{
 			var newTree = treeNode.Duplicate() as Node3D;
 			newTree.Name = "Tree" + i;
 			newTree.Position = new Vector3(random.Next(-100, 100), treeNode.Position.Y, random.Next(-100, 100));
+			GD.Print(newTree.Position);
 			newTree.Visible = true;
 			this.AddChild(newTree);
 		}

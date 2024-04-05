@@ -42,6 +42,7 @@ public partial class Login : Control
 
 			if (response.IsSuccessStatusCode)
 			{
+				GD.Print("Login successful for user: " + usernameValue);
 				ConnectedUser.Username = usernameValue;
 				this.GetTree().ChangeSceneToFile("res://Scene/World.tscn");
 			}
