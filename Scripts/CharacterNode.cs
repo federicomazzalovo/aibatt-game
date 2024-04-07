@@ -6,7 +6,7 @@ public abstract partial class CharacterNode : CharacterBody3D
 	public Character Character { get; private set; }
 	protected MoveDirection MoveDirection = MoveDirection.None;
 
-	public void Initialize(Character character)
+	public virtual void Initialize(Character character)
 	{
 		this.Character = character;
 		this.Position = new Vector3(character.Position.x, character.Position.y, character.Position.z);

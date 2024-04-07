@@ -12,6 +12,12 @@ public partial class Player : CharacterNode
 	public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
 	private Node3D camera;
 
+	public override void Initialize(Character character)
+	{
+		base.Initialize(character);
+		this.SyncCamera();
+	}
+
 	public override void _Ready()
 	{
 		camera = GetParent().GetNode<Node3D>("CameraController");
@@ -37,7 +43,7 @@ public partial class Player : CharacterNode
 		{
 			// Rotates left or right
 			this.Rotation = new Vector3(0, this.Rotation.Y - (inputDir.X * ((float)delta * 3)), 0);
-			camera.Rotation = new Vector3(camera.Rotation.X, Rotation.Y, camera.Rotation.Z);
+			this.SyncCamera();
 
 			Vector3 direction = (this.Transform.Basis * new Vector3(0, 0, inputDir.Y)).Normalized();
 
@@ -68,6 +74,11 @@ public partial class Player : CharacterNode
 				this.UpdatePosition();
 			}
 		}
+	}
+
+	private void SyncCamera()
+	{
+		this.camera.Rotation = new Vector3(this.camera.Rotation.X, Rotation.Y, camera.Rotation.Z);
 	}
 
 	private void CalculateMovingDirection()
