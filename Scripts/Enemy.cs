@@ -16,30 +16,38 @@ public partial class Enemy : CharacterNode
 
 	public override void _PhysicsProcess(double delta)
 	{
-		GD.Print($"Enemy direction: {this.MoveDirection}");
+		this.Rotate(delta);
+
+		this.CalculateVelocity();
+
+		this.MoveAndSlide();
+	}
+
+	private void Rotate(double delta)
+	{
 		if (this.MoveDirection == MoveDirection.Right || this.MoveDirection == MoveDirection.Left)
 		{
 			var rotDirection = (this.MoveDirection == MoveDirection.Left) ? -1 : 1;
 			var newRotation = new Vector3(0, this.Rotation.Y - (rotDirection * ((float)delta * 3)), 0);
-			if (newRotation.Y > this.currentRotation.Y)
-				this.Rotation = this.currentRotation;
-			else
-				this.Rotation = newRotation;
+			this.Rotation = newRotation;
 		}
 		else
 		{
 			this.Rotation = this.currentRotation;
 		}
+	}
 
+
+	private void CalculateVelocity()
+	{
 		Vector3 velocity = this.Velocity;
 
 		if (this.MoveDirection == MoveDirection.Up || this.MoveDirection == MoveDirection.Down)
 		{
-			var directionX = (this.MoveDirection == MoveDirection.Up) ? 1 : -1;
-			velocity.X = directionX * Speed;
-
-			var directionZ = (this.MoveDirection == MoveDirection.Down) ? 1 : -1;
-			velocity.Z = directionZ * Speed;
+			var movingForward = (this.MoveDirection == MoveDirection.Up) ? -1 : 1;
+			var direction = (this.Transform.Basis * new Vector3(0, 0, movingForward)).Normalized();
+			velocity.X = direction.X * Speed;
+			velocity.Z = direction.Z * Speed;
 		}
 		else
 		{
@@ -49,7 +57,6 @@ public partial class Enemy : CharacterNode
 		}
 
 		this.Velocity = velocity;
-		this.MoveAndSlide();
 	}
 
 	public override void UpdateCharacter(WebSocketParams param)
