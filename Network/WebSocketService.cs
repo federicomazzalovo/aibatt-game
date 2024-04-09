@@ -62,7 +62,6 @@ public partial class WebSocketService : GodotObject
 
     public void SendMessage(string message)
     {
-        GD.Print($"Sending message: {message}");
         this.client.Send(Encoding.UTF8.GetBytes(message), WebSocketPeer.WriteMode.Text);
     }
 }

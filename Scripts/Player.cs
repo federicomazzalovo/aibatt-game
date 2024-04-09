@@ -42,7 +42,8 @@ public partial class Player : CharacterNode
 		if (inputDir != Vector2.Zero)
 		{
 			// Rotates left or right
-			this.Rotation = new Vector3(0, this.Rotation.Y - (inputDir.X * ((float)delta * 3)), 0);
+			var rotAmount = inputDir.X * ((float)delta * 3);
+			this.Rotation = new Vector3(0, this.Rotation.Y - rotAmount, 0);
 			this.SyncCamera();
 
 			Vector3 direction = (this.Transform.Basis * new Vector3(0, 0, inputDir.Y)).Normalized();
@@ -64,14 +65,14 @@ public partial class Player : CharacterNode
 			this.MoveAndSlide();
 
 			this.stopMessageSent = false;
-			this.UpdatePosition();
+			this.UpdatePosition(rotAmount);
 		}
 		else
 		{
 			if (!this.stopMessageSent)
 			{
 				this.stopMessageSent = true;
-				this.UpdatePosition();
+				this.UpdatePosition(0);
 			}
 		}
 	}
@@ -95,7 +96,7 @@ public partial class Player : CharacterNode
 			this.MoveDirection = MoveDirection.None;
 	}
 
-	private void UpdatePosition()
+	private void UpdatePosition(float rotationAmount)
 	{
 		string message = JsonConvert.SerializeObject(new WebSocketParams()
 		{
@@ -106,6 +107,7 @@ public partial class Player : CharacterNode
 			rotationX = this.Rotation.X,
 			rotationY = this.Rotation.Y,
 			rotationZ = this.Rotation.Z,
+			rotationAmount = rotationAmount,
 			actionType = (int)ActionType.Movement,
 			moveDirection = (int)this.MoveDirection,
 			isConnected = true

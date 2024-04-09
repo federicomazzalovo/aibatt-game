@@ -30,6 +30,7 @@ public class WebSocketParams
     public float rotationX { get; set; } 
     public float rotationY { get; set; }
     public float rotationZ { get; set; }
+    public float rotationAmount { get; set; }
     public int moveDirection { get; set; }
     public double hp { get; set; }
     public double initHp { get; set; }
