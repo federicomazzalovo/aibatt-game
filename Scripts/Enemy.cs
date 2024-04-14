@@ -28,40 +28,29 @@ public partial class Enemy : CharacterNode
 
 	public override void _PhysicsProcess(double delta)
 	{
-		this.Rotate(delta);
+		this.UpdateRotation(delta);
 
-		this.CalculateVelocity();
+		this.UpdatePosition();
 
 		this.MoveAndSlide();
 	}
 
-	private void Rotate(double delta)
+	private void UpdateRotation(double delta)
 	{
 		if (this.rotationAmount != 0)
 		{
 			this.Rotation = new Vector3(0, this.Rotation.Y - this.rotationAmount, 0);
 		}
+		else
+			this.Rotation = this.newRotation;
 	}
 
-	private void CalculateVelocity()
+	private void UpdatePosition()
 	{
-		Vector3 velocity = this.Velocity;
-
 		if (this.MoveDirection == MoveDirection.Up || this.MoveDirection == MoveDirection.Down)
 		{
-			var movingForward = (this.MoveDirection == MoveDirection.Up) ? -1 : 1;
-			var direction = (this.Transform.Basis * new Vector3(0, 0, movingForward)).Normalized();
-			velocity.X = direction.X * Speed;
-			velocity.Z = direction.Z * Speed;
-		}
-		else
-		{
 			this.Position = this.newPosition;
-			velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
-			velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
 		}
-
-		this.Velocity = velocity;
 	}
 
 	public override void UpdateCharacter(WebSocketParams param)
