@@ -1,18 +1,18 @@
 [gd_scene load_steps=20 format=3 uid="uid://bw8ntrvi6sv7w"]
 
-[ext_resource type="Script" path="res://Scripts/World.cs" id="1_e6r36"]
-[ext_resource type="PackedScene" uid="uid://c6d8x57di3m3h" path="res://Scene/Player.tscn" id="2_qphaw"]
-[ext_resource type="Script" path="res://Scripts/Player.cs" id="3_b435t"]
-[ext_resource type="Script" path="res://Scripts/CameraController.cs" id="4_gkynt"]
-[ext_resource type="Texture2D" uid="uid://c7t13hvo7sp37" path="res://Textures/sky.png" id="5_avkhg"]
-[ext_resource type="Terrain3DStorage" uid="uid://c78bggb37coc1" path="res://Terrain/terrain.res" id="6_hgloq"]
-[ext_resource type="Texture2D" uid="uid://dg8oeuowlpd83" path="res://Textures/grass.jpg" id="7_xctdn"]
-[ext_resource type="PackedScene" uid="uid://prohimcu85ti" path="res://Props/tree.tscn" id="8_d2yl1"]
-[ext_resource type="PackedScene" uid="uid://dl6mkbxrudv5q" path="res://Scene/Enemy.tscn" id="9_o0x4f"]
-[ext_resource type="Script" path="res://Scripts/Enemy.cs" id="10_vspcs"]
+[ext_resource type="Script" path="res://Scripts/World.cs" id="1_qaavb"]
+[ext_resource type="PackedScene" uid="uid://c6d8x57di3m3h" path="res://Scene/Player.tscn" id="2_gebid"]
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="3_p5x4t"]
+[ext_resource type="Script" path="res://Scripts/CameraController.cs" id="4_4arno"]
+[ext_resource type="Texture2D" uid="uid://c7t13hvo7sp37" path="res://Textures/sky.png" id="5_8pg1n"]
+[ext_resource type="Terrain3DStorage" uid="uid://c78bggb37coc1" path="res://Terrain/terrain.res" id="6_ywo7h"]
+[ext_resource type="Texture2D" uid="uid://dg8oeuowlpd83" path="res://Textures/grass.jpg" id="7_gd3j3"]
+[ext_resource type="PackedScene" uid="uid://prohimcu85ti" path="res://Props/tree.tscn" id="8_00e6r"]
+[ext_resource type="PackedScene" uid="uid://dl6mkbxrudv5q" path="res://Scene/Enemy.tscn" id="9_1mfrs"]
+[ext_resource type="Script" path="res://Scripts/Enemy.cs" id="10_as0dw"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_54vgp"]
-panorama = ExtResource("5_avkhg")
+panorama = ExtResource("5_8pg1n")
 
 [sub_resource type="Sky" id="Sky_mjn4f"]
 sky_material = SubResource("PanoramaSkyMaterial_54vgp")
@@ -61,21 +61,21 @@ _shader_parameters = {
 }
 
 [sub_resource type="Terrain3DTexture" id="Terrain3DTexture_hc7fr"]
-albedo_texture = ExtResource("7_xctdn")
-normal_texture = ExtResource("7_xctdn")
+albedo_texture = ExtResource("7_gd3j3")
+normal_texture = ExtResource("7_gd3j3")
 uv_scale = 0.4
 
 [sub_resource type="Terrain3DTextureList" id="Terrain3DTextureList_2kf1x"]
 textures = Array[Terrain3DTexture]([SubResource("Terrain3DTexture_hc7fr")])
 
 [node name="World" type="Node3D"]
-script = ExtResource("1_e6r36")
+script = ExtResource("1_qaavb")
 
-[node name="Player" parent="." instance=ExtResource("2_qphaw")]
-script = ExtResource("3_b435t")
+[node name="Player" parent="." instance=ExtResource("2_gebid")]
+script = ExtResource("3_p5x4t")
 
 [node name="CameraController" type="Node3D" parent="."]
-script = ExtResource("4_gkynt")
+script = ExtResource("4_4arno")
 
 [node name="Camera3D" type="Camera3D" parent="CameraController"]
 transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -0.0140843, 2.07361, 1.34303)
@@ -84,13 +84,13 @@ transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 
 environment = SubResource("Environment_s4bng")
 
 [node name="Terrain3D" type="Terrain3D" parent="."]
-storage = ExtResource("6_hgloq")
+storage = ExtResource("6_ywo7h")
 material = SubResource("Terrain3DMaterial_vpugl")
 texture_list = SubResource("Terrain3DTextureList_2kf1x")
 
-[node name="Tree" parent="." instance=ExtResource("8_d2yl1")]
+[node name="Tree" parent="." instance=ExtResource("8_00e6r")]
 visible = false
 
-[node name="Enemy" parent="." instance=ExtResource("9_o0x4f")]
+[node name="Enemy" parent="." instance=ExtResource("9_1mfrs")]
 visible = false
-script = ExtResource("10_vspcs")
+script = ExtResource("10_as0dw")

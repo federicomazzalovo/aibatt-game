@@ -55,15 +55,15 @@ public partial class Enemy : CharacterNode
 
 	public override void UpdateCharacter(WebSocketParams param)
 	{
-		if (param.rotationAmount != 0)
-			GD.Print(JsonConvert.SerializeObject(param));
-		this.MoveDirection = (MoveDirection)param.moveDirection;
+		//	if (param.rotationAmount != 0)
+		//	GD.Print(JsonConvert.SerializeObject(param));
+		this.MoveDirection = (MoveDirection)param.MoveDirection;
 		if (this.MoveDirection != MoveDirection.None && this.MoveDirection != MoveDirection.Up && this.MoveDirection != MoveDirection.Down)
 			this.latestRotationDirection = this.MoveDirection;
 
-		this.newPosition = new Vector3(param.positionX, param.positionY, param.positionZ);
+		this.newPosition = new Vector3(param.PositionX, param.PositionY, param.PositionZ);
 		this.oldRotation = this.newRotation;
-		this.newRotation = new Vector3(param.rotationX, param.rotationY, param.rotationZ);
-		this.rotationAmount = param.rotationAmount;
+		this.newRotation = new Vector3(param.RotationX, param.RotationY, param.RotationZ);
+		//	this.rotationAmount = param.rotationAmount;
 	}
 }

@@ -59,6 +59,7 @@ public partial class World : Node3D
 	private IEnumerable<Character> enemies;
 	private Character player;
 
+	private bool handshake = false;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -69,13 +70,21 @@ public partial class World : Node3D
 
 		this.LoadCharacters();
 
-		var err = WebSocketService.GetInstance().Connect("simple-rpg-kata-ws");
-
-		if (err != Error.Ok)
+		try
 		{
-			GD.Print("Unable to connect");
-			this.SetProcess(false);
+			var result = WebSocketService.GetInstance().Connect("ws-character-hub");
+
+			if (result != Error.Ok)
+			{
+				GD.Print("Unable to connect");
+				this.SetProcess(false);
+			}
 		}
+		catch (Exception e)
+		{
+			GD.Print(e);
+		}
+
 	}
 
 	private void CreateTrees()
@@ -89,7 +98,7 @@ public partial class World : Node3D
 			var newTree = treeNode.Duplicate() as Node3D;
 			newTree.Name = "Tree" + i;
 			newTree.Position = new Vector3(random.Next(-100, 100), treeNode.Position.Y, random.Next(-100, 100));
-			GD.Print(newTree.Position);
+			//GD.Print(newTree.Position);
 			newTree.Visible = true;
 			this.AddChild(newTree);
 		}
@@ -104,10 +113,18 @@ public partial class World : Node3D
 		var state = WebSocketService.GetInstance().GetReadyState();
 		if (state == WebSocketPeer.State.Open)
 		{
-			while (WebSocketService.GetInstance().GetAvailablePacketCount() > 0)
+			if (!handshake)
 			{
-				var message = WebSocketService.GetInstance().GetPacket();
-				this.DataChanged(message);
+				WebSocketService.GetInstance().SendSignalRConnection();
+				handshake = true;
+			}
+			else
+			{
+				while (WebSocketService.GetInstance().GetAvailablePacketCount() > 0)
+				{
+					var message = WebSocketService.GetInstance().GetPacket();
+					this.DataChanged(message);
+				}
 			}
 		}
 		else if (state == WebSocketPeer.State.Closing)
@@ -167,42 +184,48 @@ public partial class World : Node3D
 	{
 		// For now  this method only receive a list of character position
 		string message = e as string;
-
+		message = System.Text.Encoding.ASCII.GetString(System.Text.Encoding.ASCII.GetBytes(message));
+		message = message.Replace("", "");
 		try
 		{
-			WebSocketHandshake handshake = JsonConvert.DeserializeObject<WebSocketHandshake>(message);
+			var response = JsonConvert.DeserializeObject<SignalRMessage>(message);
+			var handshake = JsonConvert.DeserializeObject<WebSocketHandshake>(response.target);
 			ConnectedUser.WSSessionId = handshake.sessionId;
 			handshake.username = ConnectedUser.Username;
-			string msgToSend = JsonConvert.SerializeObject(handshake);
-			WebSocketService.GetInstance().SendMessage(msgToSend);
+
+			WebSocketService.GetInstance().SendHandShake(handshake);
 		}
-		catch (Exception)
+		catch (Exception exc)
 		{
+
 			try
 			{
-				List<WebSocketParams> webSocketParamsList = JsonConvert.DeserializeObject<List<WebSocketParams>>(message);
+				var response = JsonConvert.DeserializeObject<SignalRMessage>(message);
+				List<WebSocketParams> webSocketParamsList = JsonConvert.DeserializeObject<List<WebSocketParams>>(response.target);
 
-				var changedCharactersIds = webSocketParamsList.Select(w => w.characterId);
+				var changedCharactersIds = webSocketParamsList.Select(w => w.CharacterId);
 				var existingCharactersIds = this.characterNodes.Select(w => w.Character.Id);
 				List<CharacterNode> toUpdate = this.characterNodes.Where(x => changedCharactersIds.Contains(x.Character.Id)).ToList();
 				List<CharacterNode> toDelete = this.characterNodes.Where(x => !changedCharactersIds.Contains(x.Character.Id)).ToList();
-				List<WebSocketParams> toAdd = webSocketParamsList.Where(x => !existingCharactersIds.Contains(x.characterId)).ToList();
+				List<WebSocketParams> toAdd = webSocketParamsList.Where(x => !existingCharactersIds.Contains(x.CharacterId)).ToList();
 
 
 				foreach (CharacterNode node in toUpdate)
 				{
-					WebSocketParams param = webSocketParamsList.SingleOrDefault((Func<WebSocketParams, bool>)(x => x.characterId == node.Character.Id));
+					WebSocketParams param = webSocketParamsList.SingleOrDefault((Func<WebSocketParams, bool>)(x => x.CharacterId == node.Character.Id));
+					//GD.Print(JsonConvert.SerializeObject(param));
 					node.UpdateCharacter(param);
 				}
 
 				foreach (WebSocketParams param in toAdd)
-					this.AddEnemy(new Character() { 
-						Id = param.characterId, 
-						Hp = param.hp, 
-						InitHp = param.initHp, 
-						Level = param.level, 
-						Position = new CharacterPosition(param.positionX, param.positionY, param.positionZ),
-						Rotation = new CharacterRotation(param.rotationX, param.rotationY, param.rotationZ) 
+					this.AddEnemy(new Character()
+					{
+						Id = param.CharacterId,
+						Hp = param.Hp,
+						InitHp = param.InitHp,
+						Level = param.Level,
+						Position = new CharacterPosition(param.PositionX, param.PositionY, param.PositionZ),
+						Rotation = new CharacterRotation(param.RotationX, param.RotationY, param.RotationZ)
 					});
 
 				foreach (CharacterNode node in toDelete)
@@ -211,7 +234,11 @@ public partial class World : Node3D
 					this.characterNodes.Remove(node);
 				}
 			}
-			catch (Exception) { }
+			catch (Exception ex)
+			{
+				GD.Print(message);
+				GD.Print(ex);
+			}
 		}
 	}
 }

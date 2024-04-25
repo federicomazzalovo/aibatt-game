@@ -98,43 +98,43 @@ public partial class Player : CharacterNode
 
 	private void UpdatePosition(float rotationAmount)
 	{
-		string message = JsonConvert.SerializeObject(new WebSocketParams()
+		var webSocketParams = new WebSocketParams()
 		{
-			characterId = this.Character.Id,
-			positionX = this.Position.X,
-			positionY = this.Position.Y,
-			positionZ = this.Position.Z,
-			rotationX = this.Rotation.X,
-			rotationY = this.Rotation.Y,
-			rotationZ = this.Rotation.Z,
-			rotationAmount = rotationAmount,
-			actionType = (int)ActionType.Movement,
-			moveDirection = (int)this.MoveDirection,
-			isConnected = true
-		});
-		WebSocketService.GetInstance().SendMessage(message);
+			CharacterId = this.Character.Id,
+			PositionX = this.Position.X,
+			PositionY = this.Position.Y,
+			PositionZ = this.Position.Z,
+			RotationX = this.Rotation.X,
+			RotationY = this.Rotation.Y,
+			RotationZ = this.Rotation.Z,
+			//		rotationAmount = rotationAmount,
+			ActionType = (int)ActionType.Movement,
+			MoveDirection = (int)this.MoveDirection,
+			IsConnected = true
+		};
+		WebSocketService.GetInstance().SendMovement(webSocketParams);
 	}
 
 	public override void UpdateCharacter(WebSocketParams param)
 	{
-		if (this.Character.Hp > 0 && param.hp == 0)
+		if (this.Character.Hp > 0 && param.Hp == 0)
 			this.Kill();
 
-		if (param.hp > 0 && !this.IsPhysicsProcessing())
+		if (param.Hp > 0 && !this.IsPhysicsProcessing())
 			this.SetPhysicsProcess(true);
 
-		this.MoveDirection = (MoveDirection)param.moveDirection;
-		this.Character.Position = new CharacterPosition(param.positionX, param.positionY, param.positionZ);
-		this.Character.Rotation = new CharacterRotation(param.rotationX, param.rotationY, param.rotationZ);
-		this.Character.Hp = param.hp;
+		this.MoveDirection = (MoveDirection)param.MoveDirection;
+		this.Character.Position = new CharacterPosition(param.PositionX, param.PositionY, param.PositionZ);
+		this.Character.Rotation = new CharacterRotation(param.RotationX, param.RotationY, param.RotationZ);
+		this.Character.Hp = param.Hp;
 
 		this.RenderLifeStatus();
 
 		// update only if not moving to avoid posilag
 		if (this.MoveDirection == MoveDirection.None)
 		{
-			this.Position = new Vector3(param.positionX, param.positionY, param.positionZ);
-			this.Rotation = new Vector3(param.rotationX, param.rotationY, param.rotationZ);
+			this.Position = new Vector3(param.PositionX, param.PositionY, param.PositionZ);
+			this.Rotation = new Vector3(param.RotationX, param.RotationY, param.RotationZ);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,37 +6,50 @@ using System.Threading.Tasks;
 
 public enum MoveDirection
 {
-    None = 0,
-    Up = 1,
-    Right = 2,
-    Down = 3,
-    Left = 4
+	None = 0,
+	Up = 1,
+	Right = 2,
+	Down = 3,
+	Left = 4
 }
 
 public enum ActionType
 {
-    None = 0,
-    Movement = 1,
-    Attack = 2
+	None = 0,
+	Movement = 1,
+	Attack = 2
+}
+
+public class SignalRHandshake
+{
+	public string protocol { get; set; } = "json";
+	public int version { get; set; } = 1;
+}
+
+public class SignalRMessage
+{
+	public int type { get; set; }
+	public string target { get; set; }
+	public List<string> arguments { get; set; }
 }
 
 public class WebSocketParams
 {
-    public string sessionId { get; set; }
-    public int characterId { get; set; }
-    public float positionX { get; set; } 
-    public float positionY { get; set; }
-    public float positionZ { get; set; }
-    public float rotationX { get; set; } 
-    public float rotationY { get; set; }
-    public float rotationZ { get; set; }
-    public float rotationAmount { get; set; }
-    public int moveDirection { get; set; }
-    public double hp { get; set; }
-    public double initHp { get; set; }
-    public int level { get; set; }
-    public int classId { get; set; }
-    public bool isConnected { get; set; }
-    public int targetId { get; set; }
-    public int actionType { get; set; }
+	public string SessionId { get; set; }
+	public int CharacterId { get; set; }
+	public float PositionX { get; set; }
+	public float PositionY { get; set; }
+	public float PositionZ { get; set; }
+	public float RotationX { get; set; }
+	public float RotationY { get; set; }
+	public float RotationZ { get; set; }
+	//	public float rotationAmount { get; set; }
+	public int MoveDirection { get; set; }
+	public double Hp { get; set; }
+	public double InitHp { get; set; }
+	public int Level { get; set; }
+	public int ClassId { get; set; }
+	public bool IsConnected { get; set; }
+	public int TargetId { get; set; }
+	public int ActionType { get; set; }
 }

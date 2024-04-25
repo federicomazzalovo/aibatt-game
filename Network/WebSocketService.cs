@@ -1,67 +1,99 @@
-﻿using Godot;
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MyFlyff.Session;
+using Newtonsoft.Json;
 
 public partial class WebSocketService : GodotObject
 {
-    private WebSocketPeer client;
-    private static WebSocketService instance;
+	private WebSocketPeer client;
+	private static WebSocketService instance;
 
-    private WebSocketService()
-    {
-        this.client = new WebSocketPeer();
-    }
+	private WebSocketService()
+	{
+		this.client = new WebSocketPeer();
+	}
 
-    public Error Connect(string endpoint)
-    {
-        return this.client.ConnectToUrl($"{Configurations.WS_URL}/" + endpoint);
-    }
+	public Error Connect(string endpoint)
+	{
+		var result = this.client.ConnectToUrl($"{Configurations.WS_URL}/" + endpoint);
 
-    public static WebSocketService GetInstance()
-    {
-        if(instance == null)
-            instance = new WebSocketService();
+		return result;
+	}
 
-        return instance;
-    }
+	public static WebSocketService GetInstance()
+	{
+		if (instance == null)
+			instance = new WebSocketService();
 
-    public void Poll()
-    {
-        this.client.Poll();
-    }
+		return instance;
+	}
 
-    public WebSocketPeer.State GetReadyState()
-    {
-        return this.client.GetReadyState();
-    }
+	public void Poll()
+	{
+		this.client.Poll();
+	}
 
-    public int GetAvailablePacketCount()
-    {
-        return this.client.GetAvailablePacketCount();
-    }
+	public WebSocketPeer.State GetReadyState()
+	{
+		return this.client.GetReadyState();
+	}
 
-    public string GetPacket()
-    {
-        var data = this.client.GetPacket();
-        return Encoding.UTF8.GetString(data, 0, data.Length);
-    }
+	public int GetAvailablePacketCount()
+	{
+		return this.client.GetAvailablePacketCount();
+	}
 
-    public int GetCloseCode()
-    {
-        return this.client.GetCloseCode();
-    }
+	public string GetPacket()
+	{
+		var data = this.client.GetPacket();
+		return Encoding.UTF8.GetString(data, 0, data.Length);
+	}
 
-    public string GetCloseReason()
-    {
-        return this.client.GetCloseReason();
-    }
+	public int GetCloseCode()
+	{
+		return this.client.GetCloseCode();
+	}
 
-    public void SendMessage(string message)
-    {
-        this.client.Send(Encoding.UTF8.GetBytes(message), WebSocketPeer.WriteMode.Text);
-    }
+	public string GetCloseReason()
+	{
+		return this.client.GetCloseReason();
+	}
+
+	public void SendSignalRConnection()
+	{
+		string msg = JsonConvert.SerializeObject(new SignalRHandshake());
+		this.SendMessage(msg);
+	}
+
+	public void SendHandShake(WebSocketHandshake handshake)
+	{
+		string msgToSend = JsonConvert.SerializeObject(handshake);
+
+		SignalRMessage msg = new SignalRMessage();
+		msg.target = "HandshakeConnect";
+		msg.arguments = new List<string> { msgToSend };
+		msg.type = 1;
+		this.SendMessage(JsonConvert.SerializeObject(msg));
+	}
+
+	public void SendMovement(WebSocketParams webSocketParams)
+	{
+		string msgToSend = JsonConvert.SerializeObject(webSocketParams);
+		SignalRMessage msg = new SignalRMessage();
+		msg.target = "ReceiveMessage";
+		msg.arguments = new List<string> { msgToSend };
+		msg.type = 1;
+		this.SendMessage(JsonConvert.SerializeObject(msg));
+	}
+
+	public void SendMessage(string message)
+	{
+		message += "";
+		//GD.Print(message);
+		this.client.Send(Encoding.UTF8.GetBytes(message), WebSocketPeer.WriteMode.Text);
+	}
 }
